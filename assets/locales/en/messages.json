@@ -1,0 +1,11 @@
+{
+    "appName": {
+        "message": "keyboardle"
+    },
+    "appShortName": {
+        "message": "keyboardle"
+    },
+    "appDescription": {
+        "message": "chrome extension to sync rgb keyboard with wordle game"
+    }
+}
