@@ -2,13 +2,16 @@
 
 const express = require('express');
 const proxy = require('net-browserify');
+require('dotenv').config({
+	'path': 'public.env'
+})
 
 const argv = require('yargs')
 	.scriptName('proxy')
 	.option('p', {
 		alias: 'port',
 		demandOption: true,
-		default: 16028,
+		default: process.env.PROXY_PORT,
 		describe: 'port to host server on',
 		type: 'int'
 	})
