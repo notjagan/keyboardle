@@ -25,14 +25,16 @@ gulp.task('extras', () => {
 function lint(files, options) {
   return () => {
     return gulp.src(files)
-      .pipe($.eslint(options))
-      .pipe($.eslint.format());
+      .pipe($.eslintNew(options))
+      .pipe($.eslintNew.format());
   };
 }
 
 gulp.task('lint', lint('app/scripts.babel/**/*.js', {
-  env: {
-    es6: true
+  overrideConfig: {
+    env: {
+      es6: true
+    }
   }
 }));
 
