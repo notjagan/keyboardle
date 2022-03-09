@@ -10,6 +10,7 @@
     "@babel/polyfill": "7.2.5",
     "@babel/preset-env": "^7.16.11",
     "@babel/register": "^7.0.0",
+    "@sethvincent/dotenvify": "^1.0.4",
     "aliasify": "^2.1.0",
     "babel-eslint": "^10.0.1",
     "babelify": "^10.0.0",
@@ -68,6 +69,7 @@
   },
   "dependencies": {
     "dotenv": "^16.0.0",
+    "express": "^4.17.3",
     "net-browserify": "^0.2.4",
     "openrgb-sdk": "^0.5.2",
     "yargs": "^17.3.1"

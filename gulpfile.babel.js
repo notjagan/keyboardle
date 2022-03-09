@@ -30,7 +30,7 @@ function lint(files, options) {
   };
 }
 
-gulp.task('lint', lint('app/scripts.babel/**/*.js', {
+gulp.task('lint', lint(['app/scripts.babel/**/*.js', 'proxy/**/*.js'], {
   overrideConfig: {
     env: {
       es6: true
@@ -103,6 +103,9 @@ gulp.task('babel', async function() {
           net: 'net-browserify'
         },
         global: true
+      })
+      .transform('@sethvincent/dotenvify', {
+        path: 'public.env'
       })
       .bundle()
       .pipe(source(file))
