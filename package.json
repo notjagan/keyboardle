@@ -1,52 +1,82 @@
 {
-    "name": "keyboardle",
-    "description": "chrome extension to sync rgb keyboard with wordle game",
-    "version": "0.0.1",
-    "homepage": "http://chrome.google.com/webstore",
-    "author": "Jagan Prem",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/notjagan/keyboardle"
+  "name": "keyboardle",
+  "private": true,
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/polyfill": "7.2.5",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/register": "^7.0.0",
+    "@sethvincent/dotenvify": "^1.0.4",
+    "aliasify": "^2.1.0",
+    "babel-eslint": "^10.0.1",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "concurrently": "^7.0.0",
+    "del": "^2.2.0",
+    "eslint": "^8.10.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-cache": "^0.4.3",
+    "gulp-chrome-manifest": "0.0.13",
+    "gulp-clean-css": "^2.0.3",
+    "gulp-eslint-new": "^1.4.2",
+    "gulp-htmlmin": "^2.0.0",
+    "gulp-if": "^2.0.0",
+    "gulp-imagemin": "^2.4.0",
+    "gulp-livereload": "^3.8.1",
+    "gulp-load-plugins": "^1.2.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-size": "^2.1.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-useref": "^3.0.8",
+    "gulp-zip": "^3.2.0",
+    "main-bower-files": "^2.11.1",
+    "run-sequence": "^1.1.5",
+    "vinyl-source-stream": "^2.0.0",
+    "wiredep": "^4.0.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "node": true,
+      "browser": true
     },
-    "scripts": {
-        "start": "xt-build -e dev -w",
-        "start:firefox": "xt-build -e dev -p firefox -w",
-        "build": "xt-build -e prod",
-        "build:firefox": "xt-build -e prod -p firefox",
-        "clean": "xt-clean",
-        "docs": "xt-docs",
-        "test": "xt-test",
-        "coverage": "nyc --reporter=lcov npm run test",
-        "sync": "xt-sync"
+    "globals": {
+      "chrome": true
     },
-    "babel": {
-        "presets": [
-            "@babel/preset-env"
-        ]
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "ecmaVersion": 8,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "modules": true
+      }
     },
-    "eslintIgnore": [
-        "test/**/*"
-    ],
-    "devDependencies": {
-        "extension-cli": "latest"
-    },
-    "xtdocs": {
-        "source": {
-            "include": [
-                "README.md",
-                "src"
-            ]
-        }
-    },
-    "xtbuild": {
-        "js_bundles": [
-            {
-                "name": "background",
-                "src": "./src/**/*.js"
-            }
-        ]
-    },
-    "dependencies": {
-        "openrgb-sdk": "^0.5.2"
+    "rules": {
+      "eol-last": 0,
+      "quotes": [
+        2,
+        "single"
+      ]
     }
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "net-browserify": "^0.2.4",
+    "openrgb-sdk": "^0.5.2",
+    "yargs": "^17.3.1"
+  },
+  "scripts": {
+    "build": "gulp babel",
+    "proxy": "node proxy/server.js",
+    "server": "concurrently --kill-others \"npm run proxy\" \"openrgb --server\""
+  }
 }
