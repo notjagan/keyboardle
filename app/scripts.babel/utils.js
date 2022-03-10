@@ -5,13 +5,37 @@ export const KeyState = {
   Correct: 'correct',
 };
 
-export function toKeyState(state) {
-  if (state === null) {
-    return KeyState.Unknown;
-  }
-  return Object.keys(KeyState).find((key) => KeyState[key] === state);
-}
-
 export const MessageType = {
   Update: 'update',
 };
+
+export function stateToColor(state) {
+  switch (state) {
+    case KeyState.Absent:
+      return {
+        red: 0,
+        green: 0,
+        blue: 0,
+      };
+    case KeyState.Unknown:
+      return {
+        red: 255,
+        green: 255,
+        blue: 255,
+      };
+    case KeyState.Present:
+      return {
+        red: 255,
+        green: 255,
+        blue: 0,
+      };
+    case KeyState.Correct:
+      return {
+        red: 0,
+        green: 255,
+        blue: 0,
+      };
+    default:
+      throw new Error('Unknown key state');
+  }
+}

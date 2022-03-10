@@ -1,4 +1,4 @@
-const { toKeyState, MessageType } = require('./utils');
+const { KeyState, MessageType } = require('./utils');
 
 const gameApp = document.getElementsByTagName('game-app')[0];
 const game = gameApp.shadowRoot.getElementById('game');
@@ -8,7 +8,7 @@ game.addEventListener('game-last-tile-revealed-in-row', () => {
   const states = Array.from(keyboard.getElementsByTagName('button'))
     .reduce((acc, button) => {
       const key = button.textContent;
-      const keyState = toKeyState(button.getAttribute('data-state'));
+      const keyState = button.getAttribute('data-state') || KeyState.Unknown;
       if (key.length === 1) {
         return { ...acc, [key]: keyState };
       }
