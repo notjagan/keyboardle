@@ -1,111 +1,103 @@
 import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import del from 'del';
-import runSequence from 'run-sequence';
-import {stream as wiredep} from 'wiredep';
+import { stream as wiredep } from 'wiredep';
 import browserify from 'browserify';
 import source from 'vinyl-source-stream';
 import es from 'event-stream';
 
 const $ = gulpLoadPlugins();
 
-gulp.task('extras', () => {
-  return gulp.src([
-    'app/*.*',
-    'app/_locales/**',
-    '!app/scripts.babel',
-    '!app/*.json',
-    '!app/*.html',
-  ], {
-    base: 'app',
-    dot: true
-  }).pipe(gulp.dest('dist'));
-});
+gulp.task('extras', () => gulp.src([
+  'app/*.*',
+  'app/_locales/**',
+  '!app/scripts.babel',
+  '!app/*.json',
+  '!app/*.html',
+], {
+  base: 'app',
+  dot: true,
+}).pipe(gulp.dest('dist')));
 
 function lint(files, options) {
-  return () => {
-    return gulp.src(files)
-      .pipe($.eslintNew(options))
-      .pipe($.eslintNew.format());
-  };
+  return () => gulp.src(files)
+    .pipe($.eslintNew(options))
+    .pipe($.eslintNew.fix())
+    .pipe($.eslintNew.format())
+    .pipe($.eslintNew.failAfterError());
 }
 
 gulp.task('lint', lint(['app/scripts.babel/**/*.js', 'proxy/**/*.js'], {
   overrideConfig: {
     env: {
-      es6: true
-    }
-  }
+      es6: true,
+    },
+  },
+  fix: true,
 }));
 
-gulp.task('images', () => {
-  return gulp.src('app/images/**/*')
-    .pipe($.if($.if.isFile, $.cache($.imagemin({
-      progressive: true,
-      interlaced: true,
-      // don't remove IDs from SVGs, they are often used
-      // as hooks for embedding and styling
-      svgoPlugins: [{cleanupIDs: false}]
-    }))
-    .on('error', function (err) {
+gulp.task('images', () => gulp.src('app/images/**/*')
+  .pipe($.if($.if.isFile, $.cache($.imagemin({
+    progressive: true,
+    interlaced: true,
+    // don't remove IDs from SVGs, they are often used
+    // as hooks for embedding and styling
+    svgoPlugins: [{ cleanupIDs: false }],
+  }))
+    .on('error', function onError(err) {
       console.log(err);
       this.end();
     })))
-    .pipe(gulp.dest('dist/images'));
-});
+  .pipe(gulp.dest('dist/images')));
 
-gulp.task('html',  () => {
-  return gulp.src('app/*.html')
-    .pipe($.useref({searchPath: ['.tmp', 'app', '.']}))
-    .pipe($.sourcemaps.init())
-    .pipe($.if('*.js', $.uglify()))
-    .pipe($.if('*.css', $.cleanCss({compatibility: '*'})))
-    .pipe($.sourcemaps.write())
-    .pipe($.if('*.html', $.htmlmin({
-      collapseWhitespace: true,
-      minifyCSS: true,
-      minifyJS: true,
-      removeComments: true
-    })))
-    .pipe(gulp.dest('dist'));
-});
+gulp.task('html', () => gulp.src('app/*.html')
+  .pipe($.useref({ searchPath: ['.tmp', 'app', '.'] }))
+  .pipe($.sourcemaps.init())
+  .pipe($.if('*.js', $.terser()))
+  .pipe($.if('*.css', $.cleanCss({ compatibility: '*' })))
+  .pipe($.sourcemaps.write())
+  .pipe($.if('*.html', $.htmlmin({
+    collapseWhitespace: true,
+    minifyCSS: true,
+    minifyJS: true,
+    removeComments: true,
+  })))
+  .pipe(gulp.dest('dist')));
 
-gulp.task('chromeManifest', () => {
-  return gulp.src('app/manifest.json')
+gulp.task('chromeManifest', async () => {
+  const cwd = process.cwd();
+  gulp.src('app/manifest.json', { base: 'app' })
     .pipe($.chromeManifest({
       buildnumber: true,
       background: {
         target: 'scripts/background.js',
-        exclude: [
-          'scripts/chromereload.js'
-        ]
-      }
-  }))
-  .pipe($.if('*.css', $.cleanCss({compatibility: '*'})))
-  .pipe($.if('*.js', $.sourcemaps.init()))
-  .pipe($.if('*.js', $.uglify()))
-  .pipe($.if('*.js', $.sourcemaps.write('.')))
-  .pipe(gulp.dest('dist'));
+      },
+    }))
+    .pipe($.if('*.css', $.cleanCss({ compatibility: '*' })))
+    .pipe($.if('*.js', $.sourcemaps.init()))
+    .pipe($.if('*.js', $.terser()))
+    .pipe($.if('*.js', $.sourcemaps.write('.')))
+    .pipe(gulp.dest('dist', { cwd }));
 });
 
-gulp.task('babel', async function() {
+gulp.task('babel', async () => {
   const files = [
-    'background.js'
+    'background.js',
   ];
 
-  const tasks = files.map(file => (
+  const tasks = files.map((file) => (
     browserify({
       entries: `./app/scripts.babel/${file}`,
-      debug: true
+      debug: true,
     }).transform('babelify', { presets: ['@babel/preset-env'] })
       .transform('aliasify', {
         aliases: {
-          net: 'net-browserify'
+          net: 'net-browserify',
         },
-        global: true
+        global: true,
       })
       .transform('@sethvincent/dotenvify', {
-        path: 'public.env'
+        path: 'public.env',
       })
       .bundle()
       .pipe(source(file))
@@ -125,39 +117,36 @@ gulp.task('watch', gulp.series('lint', 'babel'), () => {
     'app/scripts/**/*.js',
     'app/images/**/*',
     'app/styles/**/*',
-    'app/_locales/**/*.json'
+    'app/_locales/**/*.json',
   ]).on('change', $.livereload.reload);
 
   gulp.watch('app/scripts.babel/**/*.js', ['lint', 'babel']);
   gulp.watch('bower.json', ['wiredep']);
 });
 
-gulp.task('size', () => {
-  return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
-});
+gulp.task('size', () => gulp.src('dist/**/*').pipe($.size({ title: 'build', gzip: true })));
 
 gulp.task('wiredep', () => {
   gulp.src('app/*.html')
     .pipe(wiredep({
-      ignorePath: /^(\.\.\/)*\.\./
+      ignorePath: /^(\.\.\/)*\.\./,
     }))
     .pipe(gulp.dest('app'));
 });
 
-gulp.task('package', function () {
-  var manifest = require('./dist/manifest.json');
-  return gulp.src('dist/**')
-      .pipe($.zip('keyboardle-' + manifest.version + '.zip'))
-      .pipe(gulp.dest('package'));
+gulp.task('package', async () => {
+  const manifest = require('./dist/manifest.json');
+  gulp.src('dist/**')
+    .pipe($.zip(`keyboardle-${manifest.version}.zip`))
+    .pipe(gulp.dest('package'));
 });
 
-gulp.task('build', (cb) => {
-  runSequence(
-    'lint', 'babel', 'chromeManifest',
-    ['html', 'images', 'extras'],
-    'size', cb);
-});
+gulp.task('build', gulp.series(
+  'lint',
+  'babel',
+  'chromeManifest',
+  gulp.parallel('html', 'images', 'extras'),
+  'size',
+));
 
-gulp.task('default', gulp.series('clean'), cb => {
-  runSequence('build', cb);
-});
+gulp.task('default', gulp.series('clean', 'build'));
