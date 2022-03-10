@@ -14,6 +14,13 @@
       "scripts/background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": [ "https://www.nytimes.com/games/wordle/index.html" ],
+      "js": [ "scripts/wordle.js" ],
+      "run_at": "document_idle"
+    }
+  ],
   "permissions": [
     "<all_urls>"
   ]

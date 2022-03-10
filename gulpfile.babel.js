@@ -83,6 +83,8 @@ gulp.task('chromeManifest', async () => {
 gulp.task('babel', async () => {
   const files = [
     'background.js',
+    'wordle.js',
+    'utils.js',
   ];
 
   const tasks = files.map((file) => (
@@ -109,7 +111,7 @@ gulp.task('babel', async () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('watch', gulp.series('lint', 'babel'), () => {
+gulp.task('watch', gulp.series('lint', 'babel'), async () => {
   $.livereload.listen();
 
   gulp.watch([
@@ -126,7 +128,7 @@ gulp.task('watch', gulp.series('lint', 'babel'), () => {
 
 gulp.task('size', () => gulp.src('dist/**/*').pipe($.size({ title: 'build', gzip: true })));
 
-gulp.task('wiredep', () => {
+gulp.task('wiredep', async () => {
   gulp.src('app/*.html')
     .pipe(wiredep({
       ignorePath: /^(\.\.\/)*\.\./,
